@@ -1,5 +1,9 @@
 import axios from "axios";
-import { redirectToLogin } from "./utils/tokenUtils";
+const redirectToLogin = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/login';
+};
 
 const axiosInstance = axios.create({
   baseURL:
