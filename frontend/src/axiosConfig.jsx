@@ -1,46 +1,33 @@
-import axios from 'axios';
-
-// Determine the base URL based on environment
-const getBaseURL = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.REACT_APP_API_URL || 'https://your-api-domain.com';
-  }
-  return 'http://localhost:5001';
-};
+import axios from "axios";
+import { redirectToLogin } from "./utils/tokenUtils";
 
 const axiosInstance = axios.create({
-  baseURL: getBaseURL(),
-  headers: { 
-    'Content-Type': 'application/json' 
-  },
-  timeout: 10000, // 10 second timeout
+  baseURL:
+    process.env.NODE_ENV === "production"
+      ? "/api" // ✅ Relative path for production, works with Nginx reverse proxy
+      : "http://localhost:5001/api", // Local dev backend
+  headers: { "Content-Type": "application/json" },
+  timeout: 10000, // Optional: 10s timeout
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add token to all requests
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (user && user.token) {
+      config.headers.Authorization = `Bearer ${user.token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// Response interceptor to handle 401 errors
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      redirectToLogin();
     }
     return Promise.reject(error);
   }

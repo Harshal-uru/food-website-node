@@ -1,57 +1,49 @@
-
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const connectDB = require('./config/db');
-
-dotenv.config();
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./config/db");
+const path = require("path");
 
 const app = express();
+const PORT = process.env.PORT || 5001;
 
-// CORS configuration for production
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.FRONTEND_URL, 'https://yourdomain.com'] 
-    : 'http://localhost:3000',
-  credentials: true,
-  optionsSuccessStatus: 200
-};
+// Connect to MongoDB
+connectDB();
 
-app.use(cors(corsOptions));
+// Allow all origins (you can restrict later if needed)
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
 
-// API Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/food-donations', require('./routes/foodDonationRoutes'));
-app.use('/api/ngos', require('./routes/ngoRoutes'));
-app.use('/api/tasks', require('./routes/taskRoutes'));
+// API routes (already prefixed with /api)
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/food-donations", require("./routes/foodDonationRoutes"));
+app.use("/api/ngos", require("./routes/ngoRoutes"));
+app.use("/api/tasks", require("./routes/taskRoutes"));
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Server is running' });
+// Health check route
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "OK", message: "Server is running" });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    message: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message 
+// ✅ Serve React build in production
+if (process.env.NODE_ENV === "production") {
+  const buildPath = path.join(__dirname, "client", "build");
+  app.use(express.static(buildPath));
+
+  // Catch-all: send index.html for any non-API routes
+  app.get("*", (req, res) => {
+    if (!req.path.startsWith("/api")) {
+      res.sendFile(path.join(buildPath, "index.html"));
+    } else {
+      res.status(404).json({ message: "API route not found" });
+    }
   });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
-
-// Export the app object for testing
-if (require.main === module) {
-  connectDB();
-  // If the file is run directly, start the server
-  const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-module.exports = app;
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal server error" });
+});
+
+// Start server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
