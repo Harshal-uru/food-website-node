@@ -1,0 +1,257 @@
+{
+	"info": {
+		"_postman_id": "4a54c6af-a504-4181-9226-fdb37c86b1e5",
+		"name": "Food Donation App API Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48442824",
+		"_collection_link": "https://ankitadityankit-584694.postman.co/workspace/Aditya-Raj's-Workspace~beb6453b-780d-471e-877d-d2b241add30d/collection/48442824-4a54c6af-a504-4181-9226-fdb37c86b1e5?action=share&source=collection_link&creator=48442824"
+	},
+	"item": [
+		{
+			"name": "User Registration",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+							"pm.test(\"Response has user id\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property(\"user\"); pm.expect(jsonData.user).to.have.property(\"_id\"); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"Test User\", \"email\": \"testuser@example.com\", \"password\": \"Password123\"}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"Login returns token\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property(\"token\"); pm.environment.set(\"authToken\", jsonData.token); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\": \"testuser@example.com\", \"password\": \"Password123\"}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Food Donation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+							"pm.test(\"Donation created\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property(\"donation\"); pm.environment.set(\"donationId\", jsonData.donation._id); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"title\": \"Fresh Meals\", \"description\": \"10 fresh meals available\", \"quantity\": 10, \"location\": \"Downtown\"}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/food-donations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"food-donations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Food Donations",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+							"pm.test(\"Donation list returned\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.be.an(\"array\"); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/food-donations",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"food-donations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "NGO Registration",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+							"pm.test(\"NGO registered\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property(\"ngo\"); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"Helping Hands\", \"registrationNumber\": \"NGO12345\", \"contactPerson\": \"John Doe\", \"email\": \"ngo@example.com\", \"phone\": \"9876543210\", \"address\": \"City Center\", \"serviceAreas\": [\"Downtown\", \"Uptown\"]}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/ngos",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"ngos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+							"pm.test(\"Task created\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property(\"task\"); pm.environment.set(\"taskId\", jsonData.task._id); });"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"title\": \"Pickup Donation\", \"description\": \"Pickup meals from donor\", \"assignedTo\": \"ngoIdHere\"}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/tasks",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000"
+		}
+	]
+}
