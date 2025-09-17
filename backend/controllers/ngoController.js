@@ -1,6 +1,8 @@
 const NGO = require('../models/NGO');
 const User = require('../models/User');
 
+
+
 // Register a new NGO
 const registerNGO = async (req, res) => {
     try {

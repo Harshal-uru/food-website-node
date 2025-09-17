@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
   baseURL:
     process.env.NODE_ENV === "production"
       ? "/api" // ✅ Relative path for production, works with Nginx reverse proxy
-      : "http://localhost:5001/api", // Local dev backend
+      : "http://localhost:5000/api", // Local dev backend
   headers: { "Content-Type": "application/json" },
   timeout: 10000, // Optional: 10s timeout
 });
